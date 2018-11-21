@@ -1,0 +1,43 @@
+---
+title: "Lab HW10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Write a function that calculates cumulative distribution function of a binomial random variable. Compare results from your function with pbinom() function.
+```{r}
+n <- 100
+p <- 0.5
+B <- 100000
+q <- 50
+
+set.seed(123)
+pbinom_manual <- function(q) {
+    round(sum(rbinom(B, n, p) <= q) / B, 4)
+}
+
+pbinom_manual(q)
+round(pbinom(q, n, p), 4)
+```
+The results using the two methods are very close.
+
+# 2. Write a function that runs simulations to obtain power from a one-sample t-test. Run your function (with number of simulations = 10,000 ) with n = 30, delta = 0.5, sd = 1 and sig.level = 0.05. Compare your results with power.t.test(n = 30, delta = 0.5, sd = 1, sig.level = 0.05, type = ‘one.sample’).
+```{r}
+B <- 10000
+set.seed(123)
+power_t_manual <- replicate(B, {
+    n <- 30
+    x <- rnorm(n, 0.5, 1)
+    se <- sd(x) / sqrt(n)
+    t <- abs(mean(x) - 0) / se 
+    power1 <- ifelse(2 * (1 - pt(t, df = n)) < 0.05, 1, 0)
+    power1 
+})
+power2 <- power.t.test(n = 30, delta = 0.5, sd = 1, sig.level = 0.05, type = "one.sample")$power
+sum(power_t_manual) / B
+round(power2, 4)
+```
+The results using the two methods are very close.
